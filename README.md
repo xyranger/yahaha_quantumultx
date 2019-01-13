@@ -6,7 +6,7 @@
 字段              |字段说明
 ------------|-----------
 url              |surge订阅地址，参考Yahaha首页
-levels              |用户等级(例如：神圣计划)参考Yahaha首页
+levels              |用户等级(例如：神圣计划)参考Yahaha首页 中文需要encode！！！！
 days              | 账户剩余天数(例如：365)参考Yahaha首页
 
 # 注意事项
