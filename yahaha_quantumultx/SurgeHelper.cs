@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
@@ -18,6 +19,14 @@ namespace yahaha_quantumultx
             var headers = responseMessage.Headers.GetValues("Subscription-userinfo").FirstOrDefault() + ";";
             Dictionary<string, long> dict = GetSubscriptionInfo(headers);
             string config = await responseMessage.Content.ReadAsStringAsync();
+            string pattern = @"link\/([\s\S]*?)\?";
+            Match m = Regex.Match(url, pattern);
+            string path = Environment.CurrentDirectory.ToString();
+            path += "/" + m.Groups[1].Value + ".conf";
+            using (StreamWriter writer = System.IO.File.AppendText(path))
+            {
+                writer.WriteLine(config);
+            }
             QutumultX qutumultX = new QutumultX();
             qutumultX.version = "1.0";
             qutumultX.error = new Object();
@@ -40,7 +49,7 @@ namespace yahaha_quantumultx
                 download = dict["download"],
                 total = dict["total"],
                 configuration_profile_modified_at = (int)(DateTime.Now.Subtract(new DateTime(1970, 1, 1))).TotalSeconds,
-                configuration_profile_url = $"https://{host}/api/yahaha/getconf?url={url}",
+                configuration_profile_url = $"https://{host}/api/yahaha/getconf?url={m.Groups[1].Value}",
                 servers = servers,
                 tips = "@宝可梦研究中心"
             };
@@ -50,7 +59,10 @@ namespace yahaha_quantumultx
 
         public async Task<string> InitConf(string url)
         {
-            string config = await httpClient.GetStringAsync(url);
+            string path = Environment.CurrentDirectory.ToString();
+            path += "/" + url + ".conf";
+            string config = System.IO.File.ReadAllText(path);
+            //string config = await httpClient.GetStringAsync(url);
             string proxys = GetProxys(config);
             string fullproxys = GetFullProxys(config);
             string shadowsocks = "";
@@ -61,6 +73,7 @@ namespace yahaha_quantumultx
             }
             string templateConfi = System.IO.File.ReadAllText("yahaha-template.conf");
             templateConfi = templateConfi.Replace("@Nodes", proxys).Replace("@shadowsocks", shadowsocks);
+            System.IO.File.Delete(path);
             return templateConfi;
         }
 
