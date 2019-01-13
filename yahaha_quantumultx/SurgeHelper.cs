@@ -102,8 +102,8 @@ namespace yahaha_quantumultx
         {
             string pattern = proxy.Replace(" ", "").Replace("[Game]", @"\[Game\]") + @"=custom,([\s\S]*?)\n";
             Match m = Regex.Match(fullproxy + "\n", pattern);
-            string ssconfig = m.Groups[1].ToString().Trim();
-            return $"shadowsocks={ssconfig},tag={proxy}";
+            string[] ssconfig = m.Groups[1].ToString().Trim().Split(',');
+            return $"shadowsocks={ssconfig[0]}:{ssconfig[1]}, method={ssconfig[2]}, password={ssconfig[3]}, {ssconfig[5]}, {ssconfig[6]}, {ssconfig[8]}, tag={proxy}";
         }
     }
 }
